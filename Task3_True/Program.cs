@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,29 +12,35 @@ namespace Task3_True
 {
     class Program
     {
-        public static string[] input = Console.ReadLine().Split();
+        
         public static bool work = true;
 
         public static void Main(string[] args)
         {
-
+            RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
+            byte[] keydata = new byte[256];
+            HMACSHA256 hmac = new HMACSHA256();
+            string key;
             bool work = true;
             int user_choice = 0;
-
+            string[] input = args;
             while (work)
             {
+                random.GetBytes(keydata);
+                key = Convert.ToBase64String(hmac.ComputeHash(keydata));
                 if (input.Length % 2 == 0 || input.Length < 3) { Console.WriteLine("Incorrect input"); work = false; return; }
-                Output(input);
+                Output(input,key);
                 user_choice = Convert.ToInt32(Console.ReadLine());
                 if (user_choice == 0)
                 {
                     break;
                 }
-                Game(user_choice);
+                Game(user_choice,input,key);
             }
 
         }
-        public static void Output(string[] input)
+        
+        public static void Output(string[] input,string key)
         {
             int count = 0;
 
@@ -47,17 +53,14 @@ namespace Task3_True
             Console.WriteLine("Input 0 for exit");
             return;
         }
-        public static void Game(int user_choice)
+        public static void Game(int user_choice, string[] input, string key)
         {
             RNGCryptoServiceProvider random = new RNGCryptoServiceProvider();
             int computer_choice = 0;
             Random random_true = new Random();
-            byte[] keydata = new byte[256];
-            HMACSHA256 hmac = new HMACSHA256();
-            random.GetBytes(keydata);
-            string key = Convert.ToBase64String(hmac.ComputeHash(keydata));
+            
             computer_choice = random_true.Next(1, input.Length);
-            int win = (input.Length + (user_choice - 1) - computer_choice) % input.Length;
+            int win = ( user_choice  - computer_choice) % input.Length-1;
            if (win == 0)
             {
                 Console.WriteLine("Draw!" + "Computer choose:" + input[computer_choice] + " HMAC:" + key);
